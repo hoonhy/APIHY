@@ -1,20 +1,19 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken')
-const StudentModel = require('../Model/studentModel')
+const TeacherModel = require('../Model/teacherModel')
 
 passport.use(new LocalStrategy(async (username, password, done) => {
     try {
-        const student = await StudentModel.findOne({
+        const teacher  = await TeacherModel.findOne({
             username: username,
             password: password
         })
-        if (!student) {
-            console.log('khong co student')
+        console.log(teacher)
+        if (!teacher) {
             return done(null, false, ({ message: "Incorrect accounts" }));
         } else {
-            console.log('co student')
-            return done(null, student);
+            return done(null, teacher);
         }
     } catch (error) {
         console.log(error)

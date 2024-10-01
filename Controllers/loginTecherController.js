@@ -1,34 +1,33 @@
-const AccountModel = require('../Model/studentModel')
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const StudentModel = require('../Model/studentModel');
+const TeacherModel = require('../Model/teacherModel');
 
 exports.loginTeacher = async (req, res, next) => {
+  console.log(req.data)
   try {
     passport.authenticate('local', async (err, user) => {
-      if (err) return res.status(500).json('loi server');
+      if (err) return res.status(500).json('loi server login');
       if (!user) return res.status(401).json('username khong ton tai');
       else {
-        const token = await jwt.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET);
-        res.cookie("token", token, { maxAge: 3600000 });
+        const token = await jwt.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET, {expiresIn: process.env.TOKEN_TIME});
+        // res.cookie("token", token, { maxAge: 3600000 });
         return res.json({ token });
       }
     })(req, res, next);
   } catch (error) {
     console.log(error)
-    return res.status(500).json('loi server');
+    return res.status(500).json('loi server login');
   }
 };
 
 exports.verifyTeacher = async (req, res, next) => {
-  console.log('checklogin ne')
   try {
     var token = req.params.token
     if (!token) {
       return res.status(500).json('Token not available');
     } else {
       var result = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-      const teacher = await StudentModel.findOne({
+      const teacher = await TeacherModel.findOne({
         _id: result
       })
       if (teacher) {
@@ -52,3 +51,12 @@ exports.phanquyen = ( req, res, next) =>{
     res.json('No Permission')
   }
 }
+
+exports.getAllTeacher = async (req, res) => {
+  try {
+    const users = await TeacherModel.find();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users', error });
+  }
+};
